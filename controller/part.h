@@ -50,7 +50,7 @@ enum ArpeggiatorDirection {
 
 enum ArpeggiatorMode {
   ARP_SEQUENCER_MODE_ARPEGGIATOR,
-  ARP_SEQUENCER_MODE_LAST
+  ARPEGIATOR_MODE_LAST
 };
 
 enum PolyphonyMode {

@@ -701,7 +701,7 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
   // 49
   { PARAMETER_LEVEL_PART,
     PRM_PART_ARP_MODE,
-    UNIT_ARP_MODE, 0, ARP_SEQUENCER_MODE_LAST - 1,
+    UNIT_ARP_MODE, 0, ARPEGIATOR_MODE_LAST - 1,
     1, 0, 0xff, 102,
     STR_RES_A_SQ, STR_RES_ARP_SEQ, STR_RES_PART },
 
