@@ -28,7 +28,6 @@ namespace ambika {
 
 enum MidiOutMode {
   MIDI_OUT_THRU,
-  MIDI_OUT_SEQUENCER,
   MIDI_OUT_CONTROLLER,
   MIDI_OUT_CHAIN,
   MIDI_OUT_FULL
@@ -51,13 +50,13 @@ typedef SystemSettingsData PROGMEM prog_SystemSettingsData;
 class SystemSettings {
  public:
   SystemSettings() { }
-  
+
   static void Save();
   static void Init(bool force_reset);
-  
+
   static inline SystemSettingsData* mutable_data() { return &data_; }
   static inline const SystemSettingsData& data() { return data_; }
-  
+
   static inline uint8_t rx_sysex() {
     return !(data_.midi_in_mask & 1);
   }
@@ -70,10 +69,10 @@ class SystemSettings {
   static inline uint8_t rx_cc() {
     return !(data_.midi_in_mask & 8);
   }
-  
+
  private:
   static SystemSettingsData data_;
- 
+
   DISALLOW_COPY_AND_ASSIGN(SystemSettings);
 };
 

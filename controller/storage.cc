@@ -154,13 +154,10 @@ uint8_t Storage::object_size(const StorageLocation& location) {
   switch (location.object) {
     case STORAGE_OBJECT_PATCH:
       return sizeof(Patch);
-      
-    case STORAGE_OBJECT_SEQUENCE:
-      return 72;
-      
+
     case STORAGE_OBJECT_PART:
       return sizeof(PartData);
-      
+
     case STORAGE_OBJECT_MULTI:
       return sizeof(MultiData);
   }
@@ -176,7 +173,7 @@ uint16_t Storage::riff_size(const StorageLocation& location) {
 
     case STORAGE_OBJECT_PROGRAM:
       return sizeof(Patch) + 12 + sizeof(PartData) + 12;
-    
+
     default:
       return object_size(location) + 12;
   }
@@ -188,13 +185,10 @@ const uint8_t* Storage::object_data(const StorageLocation& location) {
   switch (location.object) {
     case STORAGE_OBJECT_PATCH:
       return multi.part(location.part).raw_patch_data();
-      
-    case STORAGE_OBJECT_SEQUENCE:
-      return multi.part(location.part).raw_sequence_data();
-      
+
     case STORAGE_OBJECT_PART:
       return multi.part(location.part).raw_data();
-      
+
     case STORAGE_OBJECT_MULTI:
       return multi.raw_data();
   }
@@ -206,13 +200,10 @@ uint8_t* Storage::mutable_object_data(const StorageLocation& location) {
   switch (location.object) {
     case STORAGE_OBJECT_PATCH:
       return multi.mutable_part(location.part)->mutable_raw_patch_data();
-      
-    case STORAGE_OBJECT_SEQUENCE:
-      return multi.mutable_part(location.part)->mutable_raw_sequence_data();
-      
+
     case STORAGE_OBJECT_PART:
       return multi.mutable_part(location.part)->mutable_raw_data();
-      
+
     case STORAGE_OBJECT_MULTI:
       return multi.mutable_raw_data();
   }
@@ -234,7 +225,7 @@ FilesystemStatus Storage::Snapshot(const StorageLocation& location) {
   uint8_t version = version_[location.index()];
   l.slot = version;
   Save(STORAGE_HISTORY, l);
-  
+
   // Create a gap in the version number sequence to prevent forwarding.
   ++version;
   l.slot = version;
@@ -279,18 +270,17 @@ void Storage::ForEachObject(
   destination.alias = 0;
   switch(destination.object) {
     case STORAGE_OBJECT_PATCH:
-    case STORAGE_OBJECT_SEQUENCE:
     case STORAGE_OBJECT_PART:
       (*object_fn)(destination);
       break;
-      
+
     case STORAGE_OBJECT_PROGRAM:
       destination.object = STORAGE_OBJECT_PATCH;
       (*object_fn)(destination);
       destination.object = STORAGE_OBJECT_PART;
       (*object_fn)(destination);
       break;
-      
+
     case STORAGE_OBJECT_MULTI:
       (*object_fn)(destination);
       for (uint8_t i = 0; i < kNumParts; ++i) {
@@ -324,10 +314,9 @@ void Storage::TouchObject(const StorageLocation& location) {
       break;
 
     case STORAGE_OBJECT_PART:
-    case STORAGE_OBJECT_SEQUENCE:
       multi.mutable_part(location.part)->Touch();
       break;
-    
+
     case STORAGE_OBJECT_MULTI:
       multi.Touch();
       break;
@@ -387,7 +376,7 @@ void Storage::SysExSendRaw(
 void Storage::RIFFWriteObject(const StorageLocation& location) {
   const uint8_t* data = object_data(location);
   uint8_t size = object_size(location);
-  
+
   LongWord w;
   uint16_t written;
 
@@ -401,7 +390,7 @@ void Storage::RIFFWriteObject(const StorageLocation& location) {
   w.bytes[0] = location.object + 1;
   w.bytes[1] = location.alias;
   file_.Write(w.bytes, 4, &written);
-  
+
   // Write the data.
   file_.Write(data, size, &written);
 }
@@ -416,19 +405,19 @@ FilesystemStatus Storage::Load(
 
     FilesystemStatus s;
     char* name = GetFileName(type, location);
-  
+
     file_.Close();
     InvalidatePendingSysExTransfer();
-  
+
     s = file_.Open(name, FA_READ | FA_OPEN_EXISTING, kFsInitTimeout);
     if (s != FS_OK) {
       return s;
     }
-  
+
     LongWord id;
     LongWord size;
     uint16_t read;
-  
+
     file_.Read(id.bytes, 4, &read);
     if (id.value != kRiffTag) {
       file_.Close();
@@ -441,18 +430,18 @@ FilesystemStatus Storage::Load(
       file_.Close();
       return FS_BAD_FILE_FORMAT;
     }
-  
+
     while (!file_.eof()) {
       file_.Read(id.bytes, 4, &read);
       file_.Read(size.bytes, 4, &read);
       uint8_t skip_data = 1;
-    
+
       if (id.value == kObjectTag && load_contents) {
         file_.Read(id.bytes, 4, &read);
         StorageLocation destination;
         destination.object = static_cast<StorageObject>(id.bytes[0] - 1);
         destination.part = id.bytes[1] == 0 ? location.part : (id.bytes[1] - 1);
-      
+
         uint8_t expected_size = object_size(destination);
         if (expected_size == size.value - 4) {
           uint8_t* data = mutable_object_data(destination);
@@ -470,7 +459,7 @@ FilesystemStatus Storage::Load(
 
     file_.Close();
   }
-  
+
   // Refresh all datastructures.
   if (load_contents) {
     ForEachObject(location, TouchObject);
@@ -484,42 +473,42 @@ FilesystemStatus Storage::Save(
     StorageDir type,
     const StorageLocation& location) {
   scoped_resource<SdCardSession> session;
-  
+
   FilesystemStatus s;
   char* name = GetFileName(type, location);
 
   file_.Close();
   InvalidatePendingSysExTransfer();
-  
+
   // Create a backup of the older version.
   if (type == STORAGE_CLIPBOARD ||
       (type == STORAGE_BANK && system_settings.data().autobackup)) {
     char* backup_name = tmp_buffer_ + 32;
     strcpy(backup_name, name);
     backup_name[strlen(backup_name) - 3] = '~';
-    
+
     // Remove the old backup.
     fs_.Unlink(backup_name);
-    
+
     // Rename current version with the backup name.
     fs_.Rename(name, backup_name);
   }
-  
+
   // Attempt to open.
   s = file_.Open(name, FA_WRITE | FA_CREATE_ALWAYS, kFsInitTimeout);
   if (s == FS_PATH_NOT_FOUND) {
     fs_.Mkdirs(name);
     s = file_.Open(name, FA_WRITE | FA_CREATE_ALWAYS, kFsInitTimeout);
   }
-  
+
   // There's nothing we can do if Open failed at this stage.
   if (s != FS_OK) {
     return s;
   }
-  
+
   LongWord w;
   uint16_t written;
-  
+
   // RIFF header.
   w.value = kRiffTag;
   file_.Write(w.bytes, 4, &written);
@@ -527,7 +516,7 @@ FilesystemStatus Storage::Save(
   file_.Write(w.bytes, 4, &written);
   w.value = kFormatTag;
   file_.Write(w.bytes, 4, &written);
-  
+
   // NAME block.
   w.value = kNameTag;
   file_.Write(w.bytes, 4, &written);
@@ -537,7 +526,7 @@ FilesystemStatus Storage::Save(
 
   // Write subchunks.
   ForEachObject(location, &RIFFWriteObject);
-  
+
   file_.Close();
   return FS_OK;
 }
@@ -552,7 +541,7 @@ char* Storage::GetFileName(StorageDir type, const StorageLocation& location) {
   // Object name.
   ResourcesManager::LoadStringResource(STR_RES_PATCH + location.object, p, 32);
   p += strlen(p);
-  
+
   // Path.
   if (type == STORAGE_CLIPBOARD || type == STORAGE_PREVIOUS_CLIPBOARD) {
     strcat_P(p, PSTR("/CLIPBRD/CLIPBRD"));
@@ -570,26 +559,26 @@ char* Storage::GetFileName(StorageDir type, const StorageLocation& location) {
     *p++ = 'A' + (location.bank);
     *p++ = '/';
   }
-  
+
   // Name.
   if (type != STORAGE_CLIPBOARD && type != STORAGE_PREVIOUS_CLIPBOARD) {
     UnsafeItoa<int16_t>(location.slot, 3, p);
     PadRight(p, 3, '0');
     p += 3;
   }
-  
+
   // Extension dot.
   *p++ = '.';
-  
+
   // Extension name.
   ResourcesManager::LoadStringResource(STR_RES_PATCH + location.object, p, 3);
   p += 3;
-  
+
   if (type == STORAGE_PREVIOUS_CLIPBOARD) {
     p[-3] = '~';
   }
   *p = '\0';
-  
+
   return tmp_buffer_;
 }
 
@@ -612,7 +601,7 @@ FilesystemStatus Storage::SpiCopy(
   scoped_resource<SdCardSession> session;
   file_.Close();
   InvalidatePendingSysExTransfer();
-  
+
   FilesystemStatus s;
   Expand(name, variable);
   s = file_.Open(tmp_buffer_, FA_READ | FA_OPEN_EXISTING, kFsInitTimeout);
@@ -655,7 +644,7 @@ uint8_t Storage::FileExists(const prog_char* name, char variable) {
 
   file_.Close();
   InvalidatePendingSysExTransfer();
-  
+
   FilesystemStatus s;
   Expand(name, variable);
   s = file_.Open(tmp_buffer_, FA_READ | FA_OPEN_EXISTING, kFsInitTimeout);
@@ -680,7 +669,7 @@ void Storage::SysExParseCommand() {
         sysex_rx_expected_size_ = object_size(location);
       }
       break;
-      
+
     case 0x0f:
       // POKE command contains 2 bytes of address + $argument bytes of data.
       {
@@ -696,12 +685,12 @@ void Storage::SysExParseCommand() {
       // Request commands have no data.
       sysex_rx_expected_size_ = 0;
       break;
-      
+
     case 0x1f:
       // PEEK command accepts 2 bytes (address).
       sysex_rx_expected_size_ = 2;
       break;
-    
+
     default:
       sysex_rx_state_ = RECEIVING_FOOTER;
       break;
@@ -711,7 +700,7 @@ void Storage::SysExParseCommand() {
 /* static */
 void Storage::SysExAcceptCommand() {
   uint8_t success = 1;
-  
+
   StorageLocation location;
   location.part = sysex_rx_command_[1] == 0
     ?  ui.state().active_part
@@ -748,7 +737,7 @@ void Storage::SysExAcceptCommand() {
       location.object = static_cast<StorageObject>(sysex_rx_command_[0] - 0x11);
       SysExSend(location);
       break;
-      
+
     case 0x1f:
       // PEEK
       {
@@ -760,7 +749,7 @@ void Storage::SysExAcceptCommand() {
         SysExSendRaw(0x0f, size, p, size, true);
       }
       break;
-      
+
     default:
       success = 0;
       break;
@@ -775,7 +764,7 @@ void Storage::SysExReceive(uint8_t byte) {
     sysex_rx_bytes_received_ = 0;
     sysex_rx_state_ = RECEIVING_HEADER;
   }
-  
+
   switch (sysex_rx_state_) {
     case RECEIVING_HEADER:
       if (pgm_read_byte(sysex_header + sysex_rx_bytes_received_) == byte) {
@@ -830,7 +819,7 @@ void Storage::SysExReceive(uint8_t byte) {
 void Storage::InvalidatePendingSysExTransfer() {
   sysex_rx_state_ = RECEPTION_ERROR;
 }
-  
+
 /* extern */
 Storage storage;
 

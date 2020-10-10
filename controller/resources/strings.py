@@ -331,7 +331,6 @@ chord
 1/96
 
 thru
-sequencer
 controllr
 chain
 full
@@ -374,14 +373,12 @@ performance
 system
 
 pt X patch
-pt X sequence
 pt X program
 
 randomize
 init
 
 PATCH
-SEQUENCE
 PROGRAM
 MULTI
 ___

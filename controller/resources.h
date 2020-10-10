@@ -377,7 +377,6 @@ extern const prog_uint8_t wav_res_lfo_waveforms[] PROGMEM;
 #define STR_RES_1_48 290  // 1/48
 #define STR_RES_1_96 291  // 1/96
 #define STR_RES_THRU 292  // thru
-#define STR_RES_SEQUENCER 293  // sequencer
 #define STR_RES_CONTROLLR 294  // controllr
 #define STR_RES__CHAIN 295  // chain
 #define STR_RES_FULL 296  // full
@@ -416,12 +415,10 @@ extern const prog_uint8_t wav_res_lfo_waveforms[] PROGMEM;
 #define STR_RES_PERFORMANCE 329  // performance
 #define STR_RES_SYSTEM 330  // system
 #define STR_RES_PT_X_PATCH 331  // pt X patch
-#define STR_RES_PT_X_SEQUENCE 332  // pt X sequence
 #define STR_RES_PT_X_PROGRAM 333  // pt X program
 #define STR_RES_RANDOMIZE 334  // randomize
 #define STR_RES_INIT 335  // init
 #define STR_RES_PATCH 336  // PATCH
-#define STR_RES_SEQUENCE 337  // SEQUENCE
 #define STR_RES_PROGRAM 338  // PROGRAM
 #define STR_RES__MULTI 339  // MULTI
 #define STR_RES____ 340  // ___
@@ -546,7 +543,7 @@ typedef avrlib::ResourcesManager<
     ResourceId,
     avrlib::ResourcesTables<
         string_table,
-        lookup_table_table> > ResourcesManager; 
+        lookup_table_table> > ResourcesManager;
 
 }  // namespace ambika
 

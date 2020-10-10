@@ -34,7 +34,6 @@ using avrlib::FilesystemStatus;
 
 enum StorageObject {
   STORAGE_OBJECT_PATCH,
-  STORAGE_OBJECT_SEQUENCE,
   STORAGE_OBJECT_PROGRAM,
   STORAGE_OBJECT_MULTI,
   STORAGE_OBJECT_PART,
@@ -67,7 +66,7 @@ struct StorageLocation {
   inline uint16_t bank_slot() const {
     return (bank << 8) | slot;
   }
-  
+
   inline uint8_t index() const {
     if (object == STORAGE_OBJECT_MULTI) {
       return kNumVoices * 3;
@@ -84,7 +83,7 @@ static const uint16_t kFsInitTimeout = 750;
 class Storage {
  public:
   Storage() { }
-  
+
   static void Init();
   static FilesystemStatus InitFilesystem() {
     scoped_resource<SdCardSession> session;
@@ -96,15 +95,15 @@ class Storage {
   }
 
   static uint8_t Checksum(const void* data, uint8_t size);
-  
+
   static void SysExSend(const StorageLocation& location) {
     ForEachObject(location, &SysExSendObject);
   }
-  
+
   static FilesystemStatus Snapshot(const StorageLocation& location);
   static FilesystemStatus PreviousVersion(const StorageLocation& location);
   static FilesystemStatus NextVersion(const StorageLocation& location);
-  
+
   static FilesystemStatus Copy(const StorageLocation& location) {
     return Save(STORAGE_CLIPBOARD, location);
   }
@@ -123,27 +122,27 @@ class Storage {
     }
     return Load(STORAGE_BANK, location, 1);
   }
-  
+
   static FilesystemStatus LoadName(const StorageLocation location) {
     return Load(STORAGE_BANK, location, 0);
   }
-  
+
   static FilesystemStatus Save(const StorageLocation& location) {
     return Save(STORAGE_BANK, location);
   }
-  
+
   static FilesystemStatus Mkfs() {
     scoped_resource<SdCardSession> session;
     InvalidatePendingSysExTransfer();
     return fs_.Mkfs();
   }
-  
+
   static uint32_t GetFreeSpace() {
     scoped_resource<SdCardSession> session;
     InvalidatePendingSysExTransfer();
     return fs_.GetFreeSpace();
   }
-  
+
   static uint8_t FileExists(const prog_char* name) {
     return FileExists(name, 0);
   }
@@ -154,17 +153,17 @@ class Storage {
       const prog_char* name,
       char variable,
       uint8_t page_size_nibbles);
-  
+
   static uint16_t GetType() {
     return fs_.GetType();
   }
-  
+
   static void SysExReceive(uint8_t byte);
-  
+
   static inline uint8_t sysex_rx_state() {
     return sysex_rx_state_;
   }
-  
+
   static inline uint8_t version(const StorageLocation& location) {
     return version_[location.index()];
   }
@@ -176,9 +175,9 @@ class Storage {
 
  private:
   static void InvalidatePendingSysExTransfer();
-  
+
   static void Expand(const prog_char* name, char variable);
-  
+
   static FilesystemStatus Save(
       StorageDir type,
       const StorageLocation& location);
@@ -194,9 +193,9 @@ class Storage {
   static uint8_t object_size(const StorageLocation& location);
   static const uint8_t* object_data(const StorageLocation& location);
   static uint8_t* mutable_object_data(const StorageLocation& location);
-  
+
   static void ForEachObject(const StorageLocation& source, ObjectFn object_fn);
-  
+
   static void ReadObject(const StorageLocation& location);
   static void SysExSendObject(const StorageLocation& location);
   static void SysExSendRaw(uint8_t, uint8_t, const uint8_t*, uint8_t, bool);
@@ -205,25 +204,25 @@ class Storage {
 
   static void SysExParseCommand();
   static void SysExAcceptCommand();
-  
+
   static void EepromWrite(const void* data, uint8_t size, uint16_t* offset);
   static uint8_t EepromRead(void* data, uint8_t size, uint16_t* offset);
-  
+
   static uint8_t* buffer_;
-  
+
   static uint16_t sysex_rx_bytes_received_;
   static uint16_t sysex_rx_expected_size_;
   static uint8_t sysex_rx_state_;
   static uint8_t sysex_rx_checksum_;
   static uint8_t sysex_rx_command_[2];
-  
+
   static char tmp_buffer_[64];
-  
+
   static uint8_t version_[kNumVoices * 3 + 1];
-  
+
   static avrlib::Filesystem fs_;
   static avrlib::File file_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(Storage);
 };
 

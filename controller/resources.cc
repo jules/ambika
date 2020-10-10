@@ -294,7 +294,6 @@ static const prog_char str_res_1_32[] PROGMEM = "1/32";
 static const prog_char str_res_1_48[] PROGMEM = "1/48";
 static const prog_char str_res_1_96[] PROGMEM = "1/96";
 static const prog_char str_res_thru[] PROGMEM = "thru";
-static const prog_char str_res_sequencer[] PROGMEM = "sequencer";
 static const prog_char str_res_controllr[] PROGMEM = "controllr";
 static const prog_char str_res_full[] PROGMEM = "full";
 static const prog_char str_res_____[] PROGMEM = "....";
@@ -331,12 +330,10 @@ static const prog_char str_res_clock[] PROGMEM = "clock";
 static const prog_char str_res_performance[] PROGMEM = "performance";
 static const prog_char str_res_system[] PROGMEM = "system";
 static const prog_char str_res_pt_x_patch[] PROGMEM = "pt X patch";
-static const prog_char str_res_pt_x_sequence[] PROGMEM = "pt X sequence";
 static const prog_char str_res_pt_x_program[] PROGMEM = "pt X program";
 static const prog_char str_res_randomize[] PROGMEM = "randomize";
 static const prog_char str_res_init[] PROGMEM = "init";
 static const prog_char str_res_patch[] PROGMEM = "PATCH";
-static const prog_char str_res_sequence[] PROGMEM = "SEQUENCE";
 static const prog_char str_res_program[] PROGMEM = "PROGRAM";
 static const prog_char str_res__multi[] PROGMEM = "MULTI";
 static const prog_char str_res____[] PROGMEM = "___";
@@ -669,7 +666,6 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_1_48,
   str_res_1_96,
   str_res_thru,
-  str_res_sequencer,
   str_res_controllr,
   str_res_chain,
   str_res_full,
@@ -708,12 +704,10 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_performance,
   str_res_system,
   str_res_pt_x_patch,
-  str_res_pt_x_sequence,
   str_res_pt_x_program,
   str_res_randomize,
   str_res_init,
   str_res_patch,
-  str_res_sequence,
   str_res_program,
   str_res__multi,
   str_res____,
